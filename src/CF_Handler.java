@@ -48,6 +48,7 @@ public class CF_Handler {
         /*for (Character c : nullableVar)
             System.out.println(c);*/
 
+        //Create new Role
         for (Role role : grammar.getGrammar()) {
             if (!CF_Handler.isLambdaTransition(role)){
                 List<Integer> nullVariableIndex = new ArrayList<>();
@@ -55,24 +56,24 @@ public class CF_Handler {
                     if (nullableVar.contains(role.getRightSide().charAt(i)))
                         nullVariableIndex.add(i);
                 }
-                for (int i = 0 ; i <= Math.pow(2, nullVariableIndex.size()) ; i++) {
+                for (int i = 0 ; i < Math.pow(2, nullVariableIndex.size()) ; i++) {
                     String binaryPattern = Integer.toBinaryString(i);
-                    while (binaryPattern.length() != nullVariableIndex.size())
+                    while (binaryPattern.length() < nullVariableIndex.size())
                         binaryPattern = "0" + binaryPattern;
                     StringBuilder rightSideRole = new StringBuilder(role.getRightSide());
-                    for (int j = 0 ; j < nullVariableIndex.size() ; j++) {
+                    for (int j = nullVariableIndex.size() - 1 ; j >= 0  ; j--) {
                         if (binaryPattern.charAt(j) == '0') {
-                            System.out.println("Deleted: " + rightSideRole.charAt(nullVariableIndex.get(j)));
                             rightSideRole.deleteCharAt(nullVariableIndex.get(j));
                         }
                     }
-                    System.out.println(rightSideRole.toString());
+                    newRoles.add(new Role(role.getLeftSide(), rightSideRole.toString()));
                 }
+
             }
         }
-
         return new Grammar(newRoles);
     }
+
 }
 
 

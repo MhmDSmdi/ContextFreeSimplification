@@ -10,4 +10,12 @@ public class Grammar {
     public List<Role> getGrammar() {
         return grammar;
     }
+
+    @Override
+    public String toString() {
+        String a = "";
+        for (Role role : grammar)
+            a = a + role.toString() + "\n";
+        return a;
+    }
 }
