@@ -37,8 +37,7 @@ public class InputHandler {
                 readLine = bufferedReader.readLine();
             }
             Grammar g = new Grammar(roles);
-            g.setVariable();
-            return g;
+            return g.setVariable();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -50,7 +49,7 @@ public class InputHandler {
     public static void main(String[] args) {
         InputHandler a = new InputHandler();
         Grammar grammar = a.initFile("test.txt");
-        System.out.println(CF_Handler.unitReduction(grammar));
+        Grammar g = CF_Handler.uselessSymbolReduction((CF_Handler.unitReduction(CF_Handler.lambdaReduction(grammar))));
     }
 
 }

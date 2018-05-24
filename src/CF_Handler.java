@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class CF_Handler {
@@ -72,23 +74,64 @@ public class CF_Handler {
 
             }
         }
-        return new Grammar(newRoles).resetGrammarType();
+        return new Grammar(newRoles).resetGrammarType().setVariable();
     }
 
     public static Grammar uselessSymbolReduction(Grammar grammar) {
         List<Role> newRole = new ArrayList<>();
         List<Character> reachableVariable = new ArrayList<>();
+        List<Character> checked = new ArrayList<>();
+        HashMap<Character, Boolean> genStatus = new HashMap<>();
+        for (Character c : grammar.getVariableList()) {
+            genStatus.put(c, false);
+        }
+
+        for (Role role : grammar.getGrammar())
+            if (role.getRoleType() == RoleType.TERMINAL) {
+                genStatus.replace(role.getLeftSide(), true);
+                checked.add(role.getLeftSide());
+            }
+        isGenerating(grammar, grammar.getStartVar(), genStatus, checked);
         checkReachable(grammar, grammar.getStartVar(), reachableVariable);
         for (Character c : grammar.getVariableList()){
             if (!reachableVariable.contains(c))
                 grammar.deleteRole(c);
         }
-
+        Iterator iterator = genStatus.entrySet().iterator();
+        while(iterator.hasNext()) {
+            HashMap.Entry<Character, Boolean> pair = (HashMap.Entry) iterator.next();
+            if (!pair.getValue())
+                grammar.deleteVariable(pair.getKey());
+        }
         System.out.println(grammar);
-        return new Grammar(newRole);
+        return new Grammar(newRole).resetGrammarType().setVariable();
     }
 
-    private static void checkReachable(Grammar grammar, Character V, List<Character> reachableVariable) {
+    private static boolean isGenerating(Grammar grammar, char V, HashMap<Character, Boolean> genStatus, List<Character> checked) {
+        if (checked.contains(V))
+            return genStatus.get(V);
+        else
+            for (Role role : grammar.getGrammar()) {
+                List<Boolean> boolFlag = new ArrayList<>();
+                if (role.getLeftSide() == V && !genStatus.get(V)) {
+                    for (int i = 0 ; i < role.getRightSide().length() ; i++) {
+                        if (CF_Handler.isVariable(role.getRightSide().charAt(i)) && role.getRightSide().charAt(i) != V) {
+                            checked.add(role.getRightSide().charAt(i));
+                            boolFlag.add(isGenerating(grammar, role.getRightSide().charAt(i), genStatus, checked));
+                        }
+                    }
+                    if (boolFlag.size() != 0) {
+                        boolean finalBool  = true;
+                        for (Boolean b : boolFlag)
+                            finalBool = finalBool & b;
+                        genStatus.replace(V, finalBool);
+                    }
+                }
+            }
+            return false;
+    }
+
+    private static void checkReachable(Grammar grammar, char V, List<Character> reachableVariable) {
         if (!grammar.getVariableList().contains(V))
             return;
         if (!reachableVariable.contains(V)) {
@@ -118,7 +161,7 @@ public class CF_Handler {
                 deleteRole.add(role);
         }
         newRole.removeAll(deleteRole);
-        System.out.println(newRole.toString());
+//        System.out.println(newRole.toString());
         for (Character c : grammar.getVariableList()) {
             List<Character> endChar = new ArrayList<>();
             List<Character> check = new ArrayList<>();
@@ -143,8 +186,7 @@ public class CF_Handler {
                     }
                 }
         Grammar g = new Grammar(newRole);
-        g.resetGrammarType();
-        return g;
+        return g.resetGrammarType().setVariable();
     }
 
     private static void findDerivation(Grammar grammar, char V, List<Character> endChar, List<Character> checked) {

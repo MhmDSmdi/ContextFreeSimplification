@@ -15,13 +15,15 @@ public class Grammar {
         return grammar;
     }
 
-    public void setVariable() {
+    public Grammar setVariable() {
         variableList = new ArrayList<>();
         for (Role role : grammar){
             if (!variableList.contains(role.getLeftSide()))
                 variableList.add(role.getLeftSide());
         }
-        startVar = variableList.get(0);
+        if (!variableList.isEmpty())
+            startVar = variableList.get(0);
+        return this;
     }
 
     public void deleteRole(char c) {
@@ -29,6 +31,23 @@ public class Grammar {
         for (Role role : grammar) {
             if (role.getLeftSide() == c)
                 deleteList.add(role);
+        }
+        grammar.removeAll(deleteList);
+    }
+
+    public void deleteVariable(char c) {
+        List<Role> deleteList = new ArrayList<>();
+        for (Role role : grammar) {
+            if (role.getLeftSide() == c)
+                deleteList.add(role);
+            else {
+                for (int i = 0 ; i < role.getRightSide().length() ; i++) {
+                    if (role.getRightSide().charAt(i) == c) {
+                        deleteList.add(role);
+                        break;
+                    }
+                }
+            }
         }
         grammar.removeAll(deleteList);
     }
@@ -69,7 +88,7 @@ public class Grammar {
     public String toString() {
         String a = "";
         for (Role role : grammar)
-            a = a + role.toString() + "\t\t" + role.getRoleType() +"\n";
+            a = a + role.toString() /*+ "\t\t" + role.getRoleType() */+"\n";
         return a;
     }
 }
