@@ -36,7 +36,9 @@ public class InputHandler {
                 }
                 readLine = bufferedReader.readLine();
             }
-            return new Grammar(roles);
+            Grammar g = new Grammar(roles);
+            g.setVariable();
+            return g;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -47,7 +49,8 @@ public class InputHandler {
 
     public static void main(String[] args) {
         InputHandler a = new InputHandler();
-        CF_Handler.lambdaReduction(a.initFile("test.txt"));
+        Grammar grammar = a.initFile("test.txt");
+        System.out.println(CF_Handler.unitReduction(grammar));
     }
 
 }
